@@ -2,73 +2,70 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hyper Jump - Vượt Ngục Gai</title>
+
 <style>
 body{
     margin:0;
-    font-family:Arial, sans-serif;
-    background:linear-gradient(#050b5c,#020328);
-    color:white;
+    font-family:Arial;
+    background:linear-gradient(#020b3d,#000);
+    color:#fff;
     text-align:center;
 }
-h1{
-    color:#00f7ff;
-    text-shadow:0 0 10px #00f7ff;
+
+h1{color:#00ffff;text-shadow:0 0 10px #00ffff;}
+h2{color:red;margin-top:-10px;}
+#author{font-size:12px;opacity:0.8}
+
+#gameWrap{
+    width:95%;
+    max-width:900px;
+    margin:10px auto;
+    padding:10px;
 }
-h2{color:red;margin-top:-10px}
-#gameBox{
-    width:380px;
-    height:230px;
-    margin:20px auto;
-    border:3px solid #00f7ff;
-    box-shadow:0 0 20px #00f7ff;
-    background:black;
-    position:relative;
-    overflow:hidden;
+
+canvas{
+    background:#000;
+    border:3px solid cyan;
+    box-shadow:0 0 20px cyan;
+    width:100%;
+    height:260px;
 }
-#dino{
-    width:60px;              /* TO HƠN */
-    position:absolute;
-    bottom:20px;
-    left:40px;
-}
-#spike{
-    width:28px;
-    height:28px;
-    background:red;
-    clip-path:polygon(50% 0, 0 100%, 100% 100%);
-    position:absolute;
-    bottom:20px;
-}
-#score{margin-top:10px}
-#startBtn{
-    padding:10px 25px;
-    font-size:18px;
-    background:#00f7ff;
-    border:none;
-    border-radius:8px;
-    margin-top:10px;
-}
+
+#score{margin:8px;font-size:18px}
+
 #jumpBtn{
     position:fixed;
     bottom:120px;
     left:50%;
     transform:translateX(-50%);
-    padding:18px 32px;
+    padding:18px 35px;
     font-size:20px;
-    background:#00f7ff;
+    border-radius:40px;
+    background:cyan;
+    color:#000;
     border:none;
-    border-radius:50px;
-    display:none;
+    box-shadow:0 0 15px cyan;
 }
-#gameOver{
-    position:absolute;
+
+#startScreen, #gameOver{
+    position:fixed;
     inset:0;
     background:rgba(0,0,0,0.8);
-    display:none;
+    display:flex;
     align-items:center;
     justify-content:center;
     flex-direction:column;
+}
+
+.hidden{display:none}
+
+button{
+    padding:10px 25px;
+    font-size:18px;
+    border-radius:8px;
+    border:none;
 }
 </style>
 </head>
@@ -77,101 +74,102 @@ h2{color:red;margin-top:-10px}
 
 <h1>HYPER JUMP</h1>
 <h2>VƯỢT NGỤC GAI</h2>
-<p>GAME DO HẢI ĐĂNG TẠO</p>
+<div id="author">GAME DO HẢI ĐĂNG TẠO</div>
+
 <div id="score">⭐ Điểm: 0</div>
 
-<div id="gameBox">
-    <img src="dino.png" id="dino">
-    <div id="spike"></div>
-
-    <div id="gameOver">
-        <h2>GAME OVER</h2>
-        <button onclick="location.reload()">Chơi lại</button>
-    </div>
+<div id="gameWrap">
+    <canvas id="game" width="900" height="260"></canvas>
 </div>
 
-<button id="startBtn">▶ START</button>
-<button id="jumpBtn">⬆ NHẢY</button>
+<button id="jumpBtn">⬆️ NHẢY</button>
+
+<div id="startScreen">
+    <h2>CHẠM ĐỂ BẮT ĐẦU</h2>
+    <button onclick="startGame()">START</button>
+</div>
+
+<div id="gameOver" class="hidden">
+    <h2 style="color:red">GAME OVER</h2>
+    <button onclick="startGame()">Chơi lại</button>
+</div>
 
 <script>
-const dino=document.getElementById("dino");
-const spike=document.getElementById("spike");
-const scoreEl=document.getElementById("score");
-const jumpBtn=document.getElementById("jumpBtn");
-const startBtn=document.getElementById("startBtn");
-const gameOver=document.getElementById("gameOver");
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
 
-let dinoY=20;
-let dinoX=40;
-let vy=0;
-let vx=0;
-let gravity=0.65;      // RƠI MƯỢT HƠN
-let jumping=false;
+let dinoImg=new Image();
+dinoImg.src="dino.png";
 
-let spikeX=480;        // GAI GẦN HƠN
-let speed=4.8;         // CHẠY NHANH HƠN 1 XÍU
+let dino={x:80,y:190,w:70,h:70,vy:0};
+let gravity=0.7;
+let jumpPower=14;
+let speed=6;
+
+let spike={x:900,w:40,h:60};
 let score=0;
-let playing=false;
+let running=false;
 
 function startGame(){
-    playing=true;
-    jumpBtn.style.display="block";
-    startBtn.style.display="none";
-    requestAnimationFrame(loop);
+    score=0;
+    dino.y=190;
+    dino.vy=0;
+    spike.x=900;
+    running=true;
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("gameOver").classList.add("hidden");
 }
 
 function jump(){
-    if(!jumping){
-        vy=12;         // NHẢY CAO HƠN
-        vx=3.5;        // ĐÀ BAY VỀ TRƯỚC
-        jumping=true;
+    if(dino.y>=190){
+        dino.vy=-jumpPower;
     }
+}
+
+document.getElementById("jumpBtn").onclick=jump;
+document.body.onkeydown=e=>{if(e.code==="Space")jump();}
+
+function update(){
+    if(!running) return;
+
+    dino.vy+=gravity;
+    dino.y+=dino.vy;
+    if(dino.y>190){dino.y=190;dino.vy=0;}
+
+    spike.x-=speed;
+    if(spike.x<-spike.w){
+        spike.x=420+Math.random()*60;
+        score++;
+    }
+
+    if(
+        dino.x<spike.x+spike.w &&
+        dino.x+dino.w>spike.x &&
+        dino.y+dino.h>200-spike.h
+    ){
+        running=false;
+        document.getElementById("gameOver").classList.remove("hidden");
+        canvas.style.transform="translateX(5px)";
+        setTimeout(()=>canvas.style.transform="translateX(-5px)",50);
+        setTimeout(()=>canvas.style.transform="translateX(0)",100);
+    }
+
+    document.getElementById("score").innerText="⭐ Điểm: "+score;
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(dinoImg,dino.x,dino.y,dino.w,dino.h);
+    ctx.fillStyle="red";
+    ctx.fillRect(spike.x,200-spike.h,spike.w,spike.h);
 }
 
 function loop(){
-    if(!playing) return;
-
-    // Dino
-    vy-=gravity;
-    dinoY+=vy;
-    dinoX+=vx;
-    vx*=0.94;
-
-    if(dinoY<=20){
-        dinoY=20;
-        vy=0;
-        jumping=false;
-    }
-    if(dinoX>90) dinoX=90;
-
-    dino.style.bottom=dinoY+"px";
-    dino.style.left=dinoX+"px";
-
-    // Spike
-    spikeX-=speed;
-    if(spikeX<-40){
-        spikeX=480+Math.random()*80;   // ĐƯỜNG GAI NGẮN LẠI
-        score++;
-        scoreEl.innerHTML="⭐ Điểm: "+score;
-    }
-    spike.style.left=spikeX+"px";
-
-    // Collision
-    if(spikeX<95 && spikeX>45 && dinoY<55){
-        gameOver.style.display="flex";
-        playing=false;
-        return;
-    }
-
+    update();
+    draw();
     requestAnimationFrame(loop);
 }
-
-jumpBtn.onclick=jump;
-startBtn.onclick=startGame;
-document.addEventListener("touchstart",jump);
-document.addEventListener("keydown",e=>{
-    if(e.code==="Space") jump();
-});
+loop();
 </script>
 
 </body>
