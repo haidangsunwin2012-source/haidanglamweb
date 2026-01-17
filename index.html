@@ -17,8 +17,8 @@ h1{
 }
 h2{color:red;margin-top:-10px}
 #gameBox{
-    width:360px;
-    height:220px;
+    width:380px;
+    height:230px;
     margin:20px auto;
     border:3px solid #00f7ff;
     box-shadow:0 0 20px #00f7ff;
@@ -27,14 +27,14 @@ h2{color:red;margin-top:-10px}
     overflow:hidden;
 }
 #dino{
-    width:40px;
+    width:60px;              /* TO HƠN */
     position:absolute;
     bottom:20px;
     left:40px;
 }
 #spike{
-    width:30px;
-    height:30px;
+    width:28px;
+    height:28px;
     background:red;
     clip-path:polygon(50% 0, 0 100%, 100% 100%);
     position:absolute;
@@ -54,7 +54,7 @@ h2{color:red;margin-top:-10px}
     bottom:120px;
     left:50%;
     transform:translateX(-50%);
-    padding:18px 30px;
+    padding:18px 32px;
     font-size:20px;
     background:#00f7ff;
     border:none;
@@ -105,11 +105,11 @@ let dinoY=20;
 let dinoX=40;
 let vy=0;
 let vx=0;
-let gravity=0.7;
+let gravity=0.65;      // RƠI MƯỢT HƠN
 let jumping=false;
 
-let spikeX=520;
-let speed=4;
+let spikeX=480;        // GAI GẦN HƠN
+let speed=4.8;         // CHẠY NHANH HƠN 1 XÍU
 let score=0;
 let playing=false;
 
@@ -122,8 +122,8 @@ function startGame(){
 
 function jump(){
     if(!jumping){
-        vy=11;
-        vx=3;      // ĐÀ BAY VỀ PHÍA TRƯỚC
+        vy=12;         // NHẢY CAO HƠN
+        vx=3.5;        // ĐÀ BAY VỀ TRƯỚC
         jumping=true;
     }
 }
@@ -131,18 +131,18 @@ function jump(){
 function loop(){
     if(!playing) return;
 
-    // Dino physics
+    // Dino
     vy-=gravity;
     dinoY+=vy;
     dinoX+=vx;
-    vx*=0.95;
+    vx*=0.94;
 
     if(dinoY<=20){
         dinoY=20;
         vy=0;
         jumping=false;
     }
-    if(dinoX>80) dinoX=80;
+    if(dinoX>90) dinoX=90;
 
     dino.style.bottom=dinoY+"px";
     dino.style.left=dinoX+"px";
@@ -150,14 +150,14 @@ function loop(){
     // Spike
     spikeX-=speed;
     if(spikeX<-40){
-        spikeX=520+Math.random()*120; // GAI KHÔNG XA QUÁ
+        spikeX=480+Math.random()*80;   // ĐƯỜNG GAI NGẮN LẠI
         score++;
         scoreEl.innerHTML="⭐ Điểm: "+score;
     }
     spike.style.left=spikeX+"px";
 
     // Collision
-    if(spikeX<80 && spikeX>40 && dinoY<45){
+    if(spikeX<95 && spikeX>45 && dinoY<55){
         gameOver.style.display="flex";
         playing=false;
         return;
