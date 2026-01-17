@@ -79,14 +79,18 @@ const dinoImg = new Image();
 dinoImg.src = "https://i.imgur.com/7yUVEZd.png";
 
 let dino = { x:80, y:groundY-60, w:60, h:60, vy:0 };
-let spike = { x:canvas.width, y:groundY-10, w:80, h:6 };
+
+/* 🌵 GAI ĐÃ KÉO NGẮN */
+let spike = {
+    x: canvas.width,
+    y: groundY - 8,
+    w: 40,   // 👈 NGẮN HƠN
+    h: 6
+};
 
 let gravity = 1;
 let jumping = false;
-
-/* 🔥 TỐC ĐỘ ĐÃ TĂNG */
 let speed = 10;
-
 let score = 0;
 let gameOver = false;
 
@@ -131,13 +135,13 @@ function update(){
 
     spike.x -= speed;
     if(spike.x < -spike.w){
-        spike.x = canvas.width + 250;
+        spike.x = canvas.width + 180; // 👈 GẦN HƠN, KHÔNG QUÁ XA
         score++;
         point.innerText = score;
 
         if(score % 3 === 0){
             aduSound.currentTime = 0;
-            aduSound.play(); // 🔊 Á ĐÙ
+            aduSound.play();
         }
     }
 
