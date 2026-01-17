@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -64,24 +65,34 @@ h2{color:red;margin:5px 0}
     box-shadow:0 0 15px #00ffff;
 }
 
+/* KHUNG NÚT NHẢY GIỮA MÀN HÌNH */
+#jumpWrap{
+    display:flex;
+    justify-content:center;
+    margin-top:25px;
+}
+
 /* NÚT NHẢY */
 #jumpBtn{
-    margin-top:20px;
-    width:160px;
-    height:60px;
-    font-size:22px;
-    border-radius:40px;
+    width:200px;
+    height:70px;
+    font-size:24px;
+    border-radius:45px;
     border:none;
     background:#ff0066;
     color:white;
-    box-shadow:0 0 25px #ff0066;
+    box-shadow:0 0 30px #ff0066;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
 }
 
-/* GAME OVER EFFECT */
+/* GAME OVER */
 #overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.7);
+    background:rgba(0,0,0,.75);
     display:none;
     align-items:center;
     justify-content:center;
@@ -119,8 +130,11 @@ h2{color:red;margin:5px 0}
     <div id="ground"></div>
 </div>
 
-<button id="startBtn">▶ START</button><br>
-<button id="jumpBtn">⬆ JUMP</button>
+<button id="startBtn">▶ START</button>
+
+<div id="jumpWrap">
+    <button id="jumpBtn">⬆ NHẢY</button>
+</div>
 
 <div id="overlay">💀 GAME OVER 💀</div>
 
