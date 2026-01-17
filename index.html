@@ -77,14 +77,16 @@ const dinoImg = new Image();
 dinoImg.src = "https://i.imgur.com/7yUVEZd.png";
 let dino = { x:80, y:groundY-60, w:60, h:60, vy:0 };
 
-/* 🌵 DANH SÁCH GAI */
+/* 🌵 GAI */
 let spikes = [];
 
 function spawnSpike(){
-    let count = Math.random() < 0.35 ? 2 : 1; // 👈 35% ra 2 gai
+    let count = Math.random() < 0.3 ? 2 : 1; // thỉnh thoảng 2 gai
+    let baseX = canvas.width;
+
     for(let i=0;i<count;i++){
         spikes.push({
-            x: canvas.width + i*24, // 👈 2 gai sát nhau
+            x: baseX + i*35, // 👈 khoảng cách giữa 2 gai ~2–3 bước
             w:18,
             h:5
         });
