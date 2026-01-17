@@ -2,153 +2,172 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Hyper Jump - Vượt Ngục Gai</title>
+<title>Hyper Jump: Vượt Ngục Gai</title>
+
 <style>
 body{
     margin:0;
-    background:#0b0b1a;
+    background:linear-gradient(180deg,#020024,#090979,#000);
     color:white;
+    font-family:Arial, Helvetica, sans-serif;
     text-align:center;
-    font-family:Arial;
 }
-h1{color:#00ffff;text-shadow:0 0 10px #00ffff;margin:10px 0 0}
-h2{color:red;margin:5px 0}
-.creator{color:#ccc;font-size:14px;margin-bottom:10px}
-canvas{
-    background:#111;
+
+h1{
+    margin-top:15px;
+    color:#00ffff;
+    text-shadow:0 0 15px #00ffff;
+}
+h2{
+    color:#ff0033;
+    margin:5px 0;
+}
+#author{
+    font-size:13px;
+    opacity:0.8;
+}
+
+#score{
+    margin-top:8px;
+    font-size:18px;
+    color:#00ff99;
+}
+
+#game{
+    width:360px;
+    height:220px;
     border:3px solid #00ffff;
-    box-shadow:0 0 20px #00ffff;
+    margin:15px auto;
+    position:relative;
+    overflow:hidden;
+    background:#111;
+    box-shadow:0 0 25px #00ffff;
 }
-.gameover{
+
+/* khủng long */
+#dino{
     position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    color:red;
-    font-size:28px;
-    display:none;
+    bottom:15px;
+    left:40px;
+    width:65px;
+}
+
+/* gai */
+#spike{
+    position:absolute;
+    bottom:15px;
+    right:-40px;
+    width:0;
+    height:0;
+    border-left:20px solid transparent;
+    border-right:20px solid transparent;
+    border-top:35px solid #ff0033;
+    filter:drop-shadow(0 0 8px red);
+}
+
+/* nhảy */
+.jump{
+    animation: jump 0.55s ease;
+}
+
+@keyframes jump{
+    0%{bottom:15px;}
+    50%{bottom:120px;}
+    100%{bottom:15px;}
+}
+
+#hint{
+    font-size:14px;
+    opacity:0.85;
+    margin-top:5px;
 }
 </style>
 </head>
 
 <body>
+
 <h1>HYPER JUMP</h1>
 <h2>VƯỢT NGỤC GAI</h2>
-<div class="creator">GAME DO HAI DANG TẠO</div>
+<div id="author">GAME DO HAI DANG TẠO</div>
+<div id="score">⭐ Điểm: 0</div>
 
-<canvas id="game" width="420" height="260"></canvas>
-<div id="over" class="gameover">GAME OVER<br>Chạm để chơi lại</div>
+<div id="game">
+    <img id="dino" src="dino.png">
+    <div id="spike"></div>
+</div>
+
+<div id="hint">👉 Chạm màn hình hoặc nhấn phím để nhảy</div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const over = document.getElementById("over");
+const dino = document.getElementById("dino");
+const spike = document.getElementById("spike");
+const scoreEl = document.getElementById("score");
 
-// ====== MẶT ĐẤT ======
-const groundY = 215;
+let score = 0;
+let speed = 4;
+let gameOver = false;
 
-// ====== ẢNH KHỦNG LONG ======
-const dinoImg = new Image();
-dinoImg.src = "dino.png";
-
-// ====== BIẾN GAME ======
-let dino, spikes, running;
-
-function init(){
-    dino = {
-        x: 50,
-        w: 44,
-        h: 47,
-        y: groundY - 47, // CHÂN CHẠM ĐẤT
-        vy: 0
-    };
-    spikes = [];
-    running = true;
-    over.style.display = "none";
+/* âm thanh */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function beep(freq, time){
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = freq;
+    osc.type = "square";
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        audioCtx.currentTime + time
+    );
 }
 
-function spawnSpike(){
-    if(spikes.length > 0){
-        let last = spikes[spikes.length - 1];
-        if(canvas.width - last.x < 150) return;
+/* nhảy */
+function jump(){
+    if(gameOver) return;
+    if(!dino.classList.contains("jump")){
+        dino.classList.add("jump");
+        beep(600,0.15);
+        setTimeout(()=>dino.classList.remove("jump"),550);
     }
-    spikes.push({
-        x: canvas.width,
-        w: 20,
-        h: 30,
-        y: groundY - 30
-    });
 }
 
-function update(){
-    if(!running) return;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+document.addEventListener("keydown", jump);
+document.addEventListener("touchstart", jump);
 
-    // trọng lực
-    dino.vy += 0.7;
-    dino.y += dino.vy;
-    if(dino.y > groundY - dino.h){
-        dino.y = groundY - dino.h;
-        dino.vy = 0;
-    }
+/* vòng lặp game */
+setInterval(()=>{
+    if(gameOver) return;
 
-    // vẽ khủng long
-    ctx.drawImage(dinoImg, dino.x, dino.y, dino.w, dino.h);
+    let spikeLeft = spike.offsetLeft;
+    spike.style.left = spikeLeft - speed + "px";
 
-    // vẽ gai
-    ctx.fillStyle = "red";
-    for(let s of spikes){
-        s.x -= 4;
+    if(spikeLeft < -40){
+        spike.style.left = "360px";
+        score++;
+        scoreEl.innerText = "⭐ Điểm: " + score;
+        beep(900,0.05);
 
-        ctx.beginPath();
-        ctx.moveTo(s.x, s.y + s.h);
-        ctx.lineTo(s.x + s.w / 2, s.y);
-        ctx.lineTo(s.x + s.w, s.y + s.h);
-        ctx.closePath();
-        ctx.fill();
-
-        // va chạm
-        if(
-            dino.x < s.x + s.w &&
-            dino.x + dino.w > s.x &&
-            dino.y < s.y + s.h &&
-            dino.y + dino.h > s.y
-        ){
-            gameOver();
+        if(score % 5 === 0){
+            speed++;
         }
     }
-    spikes = spikes.filter(s => s.x + s.w > 0);
 
-    // vẽ mặt đất
-    ctx.strokeStyle = "#00ffff";
-    ctx.beginPath();
-    ctx.moveTo(0, groundY);
-    ctx.lineTo(canvas.width, groundY);
-    ctx.stroke();
-}
+    let dinoBottom = parseInt(
+        window.getComputedStyle(dino).getPropertyValue("bottom")
+    );
 
-function jump(){
-    if(dino.y >= groundY - dino.h){
-        dino.vy = -12;
+    if(spikeLeft < 95 && spikeLeft > 40 && dinoBottom < 50){
+        gameOver = true;
+        beep(150,0.6);
+        setTimeout(()=>{
+            alert("💀 GAME OVER 💀\nĐiểm của bạn: " + score);
+            location.reload();
+        },200);
     }
-}
-
-function gameOver(){
-    running = false;
-    over.style.display = "block";
-}
-
-canvas.addEventListener("click",()=>{
-    if(!running) init();
-    else jump();
-});
-document.addEventListener("keydown",e=>{
-    if(e.code === "Space") jump();
-});
-
-init();
-setInterval(update,20);
-setInterval(spawnSpike,1400);
+},25);
 </script>
+
 </body>
 </html>
