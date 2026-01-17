@@ -13,7 +13,6 @@ body{
     text-align:center;
     font-family:Arial, sans-serif;
 }
-
 h1{color:#00ffff;text-shadow:0 0 10px cyan;}
 h2{color:red;}
 #author{font-size:12px;opacity:.8;}
@@ -38,9 +37,7 @@ canvas{
     box-shadow:0 0 20px cyan;
 }
 
-.shake{
-    animation:shake .3s;
-}
+.shake{animation:shake .3s;}
 @keyframes shake{
     0%{transform:translate(0)}
     25%{transform:translate(5px)}
@@ -86,7 +83,10 @@ let spike = { x:canvas.width, y:groundY-10, w:80, h:6 };
 
 let gravity = 1;
 let jumping = false;
-let speed = 7;
+
+/* 🔥 TỐC ĐỘ ĐÃ TĂNG */
+let speed = 10;
+
 let score = 0;
 let gameOver = false;
 
@@ -109,11 +109,9 @@ function drawGround(){
     ctx.fillStyle="#222";
     ctx.fillRect(0, groundY, canvas.width, 5);
 }
-
 function drawDino(){
     ctx.drawImage(dinoImg, dino.x, dino.y, dino.w, dino.h);
 }
-
 function drawSpike(){
     ctx.fillStyle="red";
     ctx.fillRect(spike.x, groundY-8, spike.w, spike.h);
@@ -125,7 +123,6 @@ function update(){
 
     dino.y += dino.vy;
     dino.vy += gravity;
-
     if(dino.y >= groundY - dino.h){
         dino.y = groundY - dino.h;
         dino.vy = 0;
@@ -159,8 +156,7 @@ function update(){
 }
 
 function jump(){
-    unlockAudio(); // 🔓 bắt buộc để nghe Á ĐÙ
-
+    unlockAudio();
     if(!jumping && !gameOver){
         dino.vy = -17;
         jumping = true;
