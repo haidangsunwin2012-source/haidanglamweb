@@ -59,7 +59,6 @@ canvas{
 
 <button id="jumpBtn">⬆ NHẢY</button>
 
-<!-- ÂM THANH -->
 <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
 <audio id="dieSound" src="https://assets.mixkit.co/active_storage/sfx/2708/2708-preview.mp3"></audio>
 <audio id="aduSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
@@ -74,18 +73,18 @@ const aduSound = document.getElementById("aduSound");
 
 const groundY = canvas.height - 60;
 
-/* ẢNH KHỦNG LONG */
+/* KHỦNG LONG */
 const dinoImg = new Image();
 dinoImg.src = "https://i.imgur.com/7yUVEZd.png";
 
 let dino = { x:80, y:groundY-60, w:60, h:60, vy:0 };
 
-/* 🌵 GAI ĐÃ KÉO NGẮN */
+/* 🌵 GAI RẤT NGẮN */
 let spike = {
     x: canvas.width,
-    y: groundY - 8,
-    w: 40,   // 👈 NGẮN HƠN
-    h: 6
+    y: groundY - 6,
+    w: 18,   // 👈👈 RẤT NGẮN
+    h: 5
 };
 
 let gravity = 1;
@@ -94,7 +93,6 @@ let speed = 10;
 let score = 0;
 let gameOver = false;
 
-/* 🔓 MỞ KHÓA ÂM THANH */
 let audioUnlocked = false;
 function unlockAudio(){
     if(audioUnlocked) return;
@@ -111,14 +109,14 @@ function unlockAudio(){
 
 function drawGround(){
     ctx.fillStyle="#222";
-    ctx.fillRect(0, groundY, canvas.width, 5);
+    ctx.fillRect(0, groundY, canvas.width, 4);
 }
 function drawDino(){
     ctx.drawImage(dinoImg, dino.x, dino.y, dino.w, dino.h);
 }
 function drawSpike(){
     ctx.fillStyle="red";
-    ctx.fillRect(spike.x, groundY-8, spike.w, spike.h);
+    ctx.fillRect(spike.x, groundY-6, spike.w, spike.h);
 }
 
 function update(){
@@ -135,7 +133,7 @@ function update(){
 
     spike.x -= speed;
     if(spike.x < -spike.w){
-        spike.x = canvas.width + 180; // 👈 GẦN HƠN, KHÔNG QUÁ XA
+        spike.x = canvas.width + 140; // không xa
         score++;
         point.innerText = score;
 
