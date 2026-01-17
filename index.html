@@ -23,7 +23,7 @@ h2{margin:0;color:red;}
     box-shadow:0 0 15px #00ffff;
 }
 #jumpBtn{
-    margin:15px auto;
+    margin:15px auto 5px;
     padding:14px 30px;
     font-size:20px;
     border:none;
@@ -39,6 +39,16 @@ h2{margin:0;color:red;}
     align-items:center;
     justify-content:center;
     flex-direction:column;
+}
+
+/* ===== TEXT THƯỞNG ===== */
+.reward-text{
+    margin-top: 10px;
+    text-align: center;
+    color: #00ffff;
+    font-weight: bold;
+    font-size: 14px;
+    text-shadow: 0 0 6px #00ffff;
 }
 
 /* ===== LIÊN HỆ ADMIN ===== */
@@ -89,6 +99,11 @@ h2{margin:0;color:red;}
 
 <button id="jumpBtn">⬆ NHẢY</button>
 
+<!-- DÒNG THƯỞNG -->
+<div class="reward-text">
+  [ Đạt 50 điểm chụp màn hình bấm liên hệ ADM nhận ngay 50K ]
+</div>
+
 <!-- ROBOT LIÊN HỆ ADMIN -->
 <a href="https://www.facebook.com/share/1KgpbsLjJY/" target="_blank" id="contact-adm">
     <img src="robot.png" alt="Liên hệ Admin">
@@ -107,7 +122,6 @@ cactusImg.src = "cactus.png";
 
 const ground = 170;
 
-/* ĐÃ GIẢM TỐC ĐỘ 1 XÍU */
 let speed = 6.8;
 let gravity = 0.7;
 
