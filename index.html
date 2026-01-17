@@ -6,44 +6,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-    body{
-        margin:0;
-        background:linear-gradient(#050a3a,#000);
-        color:#fff;
-        font-family:Arial;
-        text-align:center;
-        user-select:none;
-    }
-    h1{margin:10px 0;color:#00ffff;text-shadow:0 0 10px #00ffff;}
-    h2{margin:0;color:red;}
-    #gameBox{
-        margin:10px auto;
-        border:3px solid #00ffff;
-        background:#000;
-        box-shadow:0 0 15px #00ffff;
-    }
-    #jumpBtn{
-        margin:15px auto;
-        padding:14px 30px;
-        font-size:20px;
-        border:none;
-        border-radius:30px;
-        background:#00eaff;
-        font-weight:bold;
-    }
-    #over{
-        position:absolute;
-        inset:0;
-        background:rgba(0,0,0,.7);
-        display:none;
-        align-items:center;
-        justify-content:center;
-        flex-direction:column;
-    }
+body{
+    margin:0;
+    background:linear-gradient(#050a3a,#000);
+    color:#fff;
+    font-family:Arial;
+    text-align:center;
+    user-select:none;
+}
+h1{margin:10px 0;color:#00ffff;text-shadow:0 0 10px #00ffff;}
+h2{margin:0;color:red;}
+#gameBox{
+    margin:10px auto;
+    border:3px solid #00ffff;
+    background:#000;
+    box-shadow:0 0 15px #00ffff;
+}
+#jumpBtn{
+    margin:15px auto;
+    padding:14px 30px;
+    font-size:20px;
+    border:none;
+    border-radius:30px;
+    background:#00eaff;
+    font-weight:bold;
+}
+#over{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.7);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+}
+
+/* ===== LIÊN HỆ ADMIN ===== */
+#contact-adm{
+    position:fixed;
+    right:12px;
+    bottom:90px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-decoration:none;
+    z-index:999;
+}
+#contact-adm img{
+    width:60px;
+    height:60px;
+    animation:float 2s ease-in-out infinite;
+}
+#contact-adm span{
+    margin-top:4px;
+    font-size:13px;
+    color:#00ffff;
+    text-shadow:0 0 5px #00ffff;
+    font-weight:bold;
+}
+@keyframes float{
+    0%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+    100%{transform:translateY(0)}
+}
 </style>
 </head>
 
 <body>
+
 <h1>HYPER JUMP</h1>
 <h2>VƯỢT NGỤC GAI</h2>
 <p>GAME DO HẢI ĐĂNG TẠO</p>
@@ -59,6 +89,12 @@
 
 <button id="jumpBtn">⬆ NHẢY</button>
 
+<!-- ROBOT LIÊN HỆ ADMIN -->
+<a href="https://www.facebook.com/share/1KgpbsLjJY/" target="_blank" id="contact-adm">
+    <img src="robot.png" alt="Liên hệ Admin">
+    <span>Liên hệ ADM</span>
+</a>
+
 <script>
 const canvas = document.getElementById("gameBox");
 const ctx = canvas.getContext("2d");
@@ -71,7 +107,7 @@ cactusImg.src = "cactus.png";
 
 const ground = 170;
 
-/* 🔽 ĐÃ LÀM CHẬM LẠI 1 XÍU */
+/* ĐÃ GIẢM TỐC ĐỘ 1 XÍU */
 let speed = 6.8;
 let gravity = 0.7;
 
@@ -128,19 +164,12 @@ function update(){
     }
     ctx.drawImage(dinoImg,dino.x,dino.y,dino.w,dino.h);
 
-    /* 🔽 GIÃN THỜI GIAN RA GAI */
     if(frame % 55 === 0) addSpike();
 
     for(let i=spikes.length-1;i>=0;i--){
         let s = spikes[i];
         s.x -= speed;
-        ctx.drawImage(
-            cactusImg,
-            s.x,
-            ground - s.h,
-            s.w,
-            s.h
-        );
+        ctx.drawImage(cactusImg,s.x,ground - s.h,s.w,s.h);
 
         if(
             dino.x < s.x+s.w &&
@@ -156,7 +185,6 @@ function update(){
             document.getElementById("score").innerText = score;
         }
     }
-
     requestAnimationFrame(update);
 }
 
