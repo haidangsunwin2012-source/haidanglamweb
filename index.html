@@ -8,16 +8,16 @@
 <style>
 body{
     margin:0;
-    font-family:Arial, sans-serif;
     background:linear-gradient(#050b4d,#02042a);
     color:white;
     text-align:center;
+    font-family:Arial, sans-serif;
 }
 
 h1{color:#00ffff;text-shadow:0 0 10px cyan;}
 h2{color:red;}
-#author{font-size:12px;opacity:0.8;}
-#score{margin:8px;font-size:18px;}
+#author{font-size:12px;opacity:.8;}
+#score{font-size:18px;margin:8px;}
 
 canvas{
     background:black;
@@ -29,7 +29,7 @@ canvas{
 }
 
 #jumpBtn{
-    margin:25px auto;
+    margin:20px auto;
     padding:15px 40px;
     font-size:20px;
     border:none;
@@ -39,7 +39,7 @@ canvas{
 }
 
 .shake{
-    animation:shake 0.3s;
+    animation:shake .3s;
 }
 @keyframes shake{
     0%{transform:translate(0)}
@@ -65,33 +65,30 @@ canvas{
 <!-- ÂM THANH -->
 <audio id="jumpSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
 <audio id="dieSound" src="https://assets.mixkit.co/active_storage/sfx/2708/2708-preview.mp3"></audio>
+<audio id="aduSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+const jumpSound = document.getElementById("jumpSound");
+const dieSound = document.getElementById("dieSound");
+const aduSound = document.getElementById("aduSound");
+
 const groundY = canvas.height - 60;
 
+/* ẢNH KHỦNG LONG */
 const dinoImg = new Image();
-dinoImg.src = "https://i.imgur.com/7yUVEZd.png"; // ảnh khủng long
+dinoImg.src = "https://i.imgur.com/7yUVEZd.png";
 
-let dino = {
-    x:80,
-    y:groundY - 60,
-    w:60,
-    h:60,
-    vy:0
-};
+let dino = { x:80, y:groundY-60, w:60, h:60, vy:0 };
+let spike = { x:canvas.width, y:groundY-10, w:80, h:6 };
 
-let spike = { x:canvas.width, y:groundY-40, w:30, h:40 };
 let gravity = 1;
 let jumping = false;
 let speed = 7;
 let score = 0;
 let gameOver = false;
-
-const jumpSound = document.getElementById("jumpSound");
-const dieSound = document.getElementById("dieSound");
 
 function drawGround(){
     ctx.fillStyle="#222";
@@ -104,11 +101,7 @@ function drawDino(){
 
 function drawSpike(){
     ctx.fillStyle="red";
-    ctx.beginPath();
-    ctx.moveTo(spike.x, spike.y + spike.h);
-    ctx.lineTo(spike.x + spike.w/2, spike.y);
-    ctx.lineTo(spike.x + spike.w, spike.y + spike.h);
-    ctx.fill();
+    ctx.fillRect(spike.x, groundY-8, spike.w, spike.h);
 }
 
 function update(){
@@ -126,16 +119,21 @@ function update(){
 
     spike.x -= speed;
     if(spike.x < -spike.w){
-        spike.x = canvas.width + 300;
+        spike.x = canvas.width + 250;
         score++;
         point.innerText = score;
+
+        if(score % 3 === 0){
+            aduSound.currentTime = 0;
+            aduSound.play(); // Á ĐÙ 🔥
+        }
     }
 
     if(
         dino.x < spike.x + spike.w &&
         dino.x + dino.w > spike.x &&
-        dino.y < spike.y + spike.h &&
-        dino.y + dino.h > spike.y
+        dino.y < groundY &&
+        dino.y + dino.h > groundY - spike.h
     ){
         endGame();
     }
@@ -161,14 +159,14 @@ function endGame(){
     canvas.classList.add("shake");
 
     setTimeout(()=>{
-        ctx.fillStyle="rgba(0,0,0,0.7)";
+        ctx.fillStyle="rgba(0,0,0,.7)";
         ctx.fillRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle="red";
         ctx.font="40px Arial";
-        ctx.fillText("GAME OVER", canvas.width/2-130, canvas.height/2-20);
+        ctx.fillText("GAME OVER",canvas.width/2-130,canvas.height/2-20);
         ctx.fillStyle="white";
         ctx.font="22px Arial";
-        ctx.fillText("Chơi lại", canvas.width/2-35, canvas.height/2+20);
+        ctx.fillText("Chơi lại",canvas.width/2-35,canvas.height/2+20);
         canvas.onclick = ()=>location.reload();
     },300);
 }
