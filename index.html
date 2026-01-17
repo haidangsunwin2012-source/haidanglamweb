@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -8,6 +7,7 @@
 <style>
 body{
     margin:0;
+    min-height:100vh;
     background:linear-gradient(180deg,#020024,#090979,#000);
     color:white;
     font-family:Arial;
@@ -19,6 +19,7 @@ h2{color:red;margin:5px 0}
 #author{font-size:13px;opacity:.8}
 #score{margin:8px;font-size:18px;color:#00ff99}
 
+/* KHUNG GAME */
 #game{
     width:420px;
     height:240px;
@@ -45,6 +46,7 @@ h2{color:red;margin:5px 0}
     width:70px;
 }
 
+/* GAI */
 #spike{
     position:absolute;
     bottom:15px;
@@ -56,6 +58,7 @@ h2{color:red;margin:5px 0}
     filter:drop-shadow(0 0 8px red);
 }
 
+/* NÚT START */
 #startBtn{
     padding:10px 30px;
     font-size:16px;
@@ -65,18 +68,15 @@ h2{color:red;margin:5px 0}
     box-shadow:0 0 15px #00ffff;
 }
 
-/* KHUNG NÚT NHẢY GIỮA MÀN HÌNH */
-#jumpWrap{
-    display:flex;
-    justify-content:center;
-    margin-top:25px;
-}
-
-/* NÚT NHẢY */
+/* === NÚT NHẢY (GIỮA – DƯỚI MÀN HÌNH) === */
 #jumpBtn{
-    width:200px;
-    height:70px;
-    font-size:24px;
+    position:fixed;
+    bottom:90px;
+    left:50%;
+    transform:translateX(-50%);
+    width:220px;
+    height:75px;
+    font-size:26px;
     border-radius:45px;
     border:none;
     background:#ff0066;
@@ -85,7 +85,8 @@ h2{color:red;margin:5px 0}
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:10px;
+    gap:12px;
+    z-index:999;
 }
 
 /* GAME OVER */
@@ -99,14 +100,14 @@ h2{color:red;margin:5px 0}
     font-size:36px;
     color:red;
     text-shadow:0 0 20px red;
-    animation:fadeIn .5s;
+    animation:fadeIn .4s;
 }
 
 @keyframes shake{
     0%{transform:translate(0)}
-    25%{transform:translate(-5px,5px)}
-    50%{transform:translate(5px,-5px)}
-    75%{transform:translate(-5px,-5px)}
+    25%{transform:translate(-6px,6px)}
+    50%{transform:translate(6px,-6px)}
+    75%{transform:translate(-6px,-6px)}
     100%{transform:translate(0)}
 }
 
@@ -132,35 +133,45 @@ h2{color:red;margin:5px 0}
 
 <button id="startBtn">▶ START</button>
 
-<div id="jumpWrap">
-    <button id="jumpBtn">⬆ NHẢY</button>
-</div>
+<!-- NÚT NHẢY -->
+<button id="jumpBtn">⬆ NHẢY</button>
 
 <div id="overlay">💀 GAME OVER 💀</div>
 
 <script>
-const dino=document.getElementById("dino");
-const spike=document.getElementById("spike");
-const scoreEl=document.getElementById("score");
-const startBtn=document.getElementById("startBtn");
-const jumpBtn=document.getElementById("jumpBtn");
-const overlay=document.getElementById("overlay");
-const game=document.getElementById("game");
+const dino = document.getElementById("dino");
+const spike = document.getElementById("spike");
+const scoreEl = document.getElementById("score");
+const startBtn = document.getElementById("startBtn");
+const jumpBtn = document.getElementById("jumpBtn");
+const overlay = document.getElementById("overlay");
+const game = document.getElementById("game");
 
-let playing=false,score=0;
-let x=50,y=15,vx=1.2,vy=0;
-let gravity=-0.9,jumpForce=16;
-let spikeX=420,spikeSpeed=3;
+let playing=false;
+let score=0;
+
+/* KHỦNG LONG */
+let x=50, y=15;
+let vx=1.6;          // chạy nhanh hơn
+let vy=0;
+let gravity=-0.85;
+let jumpForce=17;
+
+/* GAI */
+let spikeX=700;      // GAI XA HƠN
+let spikeSpeed=4.5; // chạy nhanh hơn
 
 function jump(){
-    if(playing && y<=15) vy=jumpForce;
+    if(playing && y<=15){
+        vy = jumpForce;
+    }
 }
 
-document.addEventListener("keydown",jump);
-document.addEventListener("touchstart",jump);
-jumpBtn.onclick=jump;
+jumpBtn.onclick = jump;
+document.addEventListener("keydown", jump);
+document.addEventListener("touchstart", jump);
 
-startBtn.onclick=()=>{
+startBtn.onclick = ()=>{
     playing=true;
     startBtn.style.display="none";
 };
@@ -168,31 +179,39 @@ startBtn.onclick=()=>{
 setInterval(()=>{
 if(!playing) return;
 
-vy+=gravity;
-y+=vy;
-x+=vx;
+/* vật lý */
+vy += gravity;
+y += vy;
+x += vx;
 
-if(y<15){y=15;vy=0}
-if(x>120)x=120;
+if(y < 15){
+    y = 15;
+    vy = 0;
+}
+if(x > 130) x = 130;
 
-dino.style.bottom=y+"px";
-dino.style.left=x+"px";
+dino.style.bottom = y + "px";
+dino.style.left = x + "px";
 
-spikeX-=spikeSpeed;
-spike.style.left=spikeX+"px";
+/* gai */
+spikeX -= spikeSpeed;
+spike.style.left = spikeX + "px";
 
-if(spikeX<-60){
-    spikeX=420;
+/* reset gai xa */
+if(spikeX < -80){
+    spikeX = 700 + Math.random()*200;
     score++;
-    scoreEl.innerText="⭐ Điểm: "+score;
+    scoreEl.innerText = "⭐ Điểm: " + score;
 }
 
-if(spikeX<x+50 && spikeX>x && y<55){
+/* va chạm */
+if(spikeX < x+55 && spikeX > x && y < 60){
     playing=false;
     game.style.animation="shake .4s";
     overlay.style.display="flex";
     setTimeout(()=>location.reload(),1500);
 }
+
 },20);
 </script>
 
