@@ -81,12 +81,11 @@ let dino = { x:80, y:groundY-60, w:60, h:60, vy:0 };
 let spikes = [];
 
 function spawnSpike(){
-    let count = Math.random() < 0.3 ? 2 : 1; // thỉnh thoảng 2 gai
+    let count = Math.random() < 0.3 ? 2 : 1;
     let baseX = canvas.width;
-
     for(let i=0;i<count;i++){
         spikes.push({
-            x: baseX + i*35, // 👈 khoảng cách giữa 2 gai ~2–3 bước
+            x: baseX + i*35,
             w:18,
             h:5
         });
@@ -95,7 +94,10 @@ function spawnSpike(){
 
 let gravity = 1;
 let jumping = false;
-let speed = 10;
+
+/* 🚀 TỐC ĐỘ X2 */
+let speed = 20; // 🔥 trước là 10
+
 let score = 0;
 let gameOver = false;
 
