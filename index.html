@@ -90,6 +90,21 @@ let speed = 7;
 let score = 0;
 let gameOver = false;
 
+/* 🔓 MỞ KHÓA ÂM THANH */
+let audioUnlocked = false;
+function unlockAudio(){
+    if(audioUnlocked) return;
+    [jumpSound, dieSound, aduSound].forEach(a=>{
+        a.volume = 0;
+        a.play().then(()=>{
+            a.pause();
+            a.currentTime = 0;
+            a.volume = 1;
+        });
+    });
+    audioUnlocked = true;
+}
+
 function drawGround(){
     ctx.fillStyle="#222";
     ctx.fillRect(0, groundY, canvas.width, 5);
@@ -125,14 +140,13 @@ function update(){
 
         if(score % 3 === 0){
             aduSound.currentTime = 0;
-            aduSound.play(); // Á ĐÙ 🔥
+            aduSound.play(); // 🔊 Á ĐÙ
         }
     }
 
     if(
         dino.x < spike.x + spike.w &&
         dino.x + dino.w > spike.x &&
-        dino.y < groundY &&
         dino.y + dino.h > groundY - spike.h
     ){
         endGame();
@@ -145,6 +159,8 @@ function update(){
 }
 
 function jump(){
+    unlockAudio(); // 🔓 bắt buộc để nghe Á ĐÙ
+
     if(!jumping && !gameOver){
         dino.vy = -17;
         jumping = true;
