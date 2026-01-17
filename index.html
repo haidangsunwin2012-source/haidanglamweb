@@ -2,117 +2,182 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Khủng Long Chạy</title>
+<title>HYPER JUMP - Vượt Ngục Gai</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-    body {
-        margin: 0;
-        background: #f7f7f7;
-        overflow: hidden;
+    body{
+        margin:0;
+        background:linear-gradient(#050a3a,#000);
+        color:#fff;
+        font-family:Arial;
+        text-align:center;
+        user-select:none;
     }
-    #game {
-        position: relative;
-        width: 100%;
-        height: 200px;
-        border-bottom: 2px solid #555;
-        background: #fff;
+    h1{margin:10px 0;color:#00ffff;text-shadow:0 0 10px #00ffff;}
+    h2{margin:0;color:red;}
+    #gameBox{
+        margin:10px auto;
+        border:3px solid #00ffff;
+        background:#000;
+        box-shadow:0 0 15px #00ffff;
     }
-    #dino {
-        position: absolute;
-        bottom: 0;
-        left: 50px;
-        width: 40px;
-        height: 40px;
-        background: #333;
+    #jumpBtn{
+        margin:15px auto;
+        padding:14px 30px;
+        font-size:20px;
+        border:none;
+        border-radius:30px;
+        background:#00eaff;
+        font-weight:bold;
     }
-    .cactus {
-        position: absolute;
-        bottom: 0;
-        width: 20px;
-        height: 40px;
-        background: green;
+    #over{
+        position:absolute;
+        inset:0;
+        background:rgba(0,0,0,.7);
+        display:none;
+        align-items:center;
+        justify-content:center;
+        flex-direction:column;
     }
 </style>
 </head>
-<body>
 
-<div id="game">
-    <div id="dino"></div>
+<body>
+<h1>HYPER JUMP</h1>
+<h2>VƯỢT NGỤC GAI</h2>
+<p>GAME DO HẢI ĐĂNG TẠO</p>
+<p>⭐ Điểm: <span id="score">0</span></p>
+
+<div style="position:relative;width:360px;margin:auto">
+    <canvas id="gameBox" width="360" height="200"></canvas>
+    <div id="over">
+        <h1>GAME OVER</h1>
+        <button onclick="restart()">Chơi lại</button>
+    </div>
 </div>
 
+<button id="jumpBtn">⬆ NHẢY</button>
+
 <script>
-const dino = document.getElementById("dino");
-const game = document.getElementById("game");
+const canvas = document.getElementById("gameBox");
+const ctx = canvas.getContext("2d");
 
-let isJumping = false;
-let gravity = 0.9;
+const dinoImg = new Image();
+dinoImg.src = "dino.png";
 
-/* 👇 TỐC ĐỘ ĐÃ GIẢM (MẶC ĐỊNH ~6) */
-let gameSpeed = 4.5;
+const cactusImg = new Image();
+cactusImg.src = "cactus.png";
 
-function jump() {
-    if (isJumping) return;
-    let position = 0;
-    isJumping = true;
+const ground = 170;
 
-    let up = setInterval(() => {
-        if (position >= 80) {
-            clearInterval(up);
-            let down = setInterval(() => {
-                if (position <= 0) {
-                    clearInterval(down);
-                    isJumping = false;
-                }
-                position -= 5;
-                dino.style.bottom = position + "px";
-            }, 20);
-        }
-        position += 5;
-        dino.style.bottom = position + "px";
-    }, 20);
+/* 🔽 ĐÃ LÀM CHẬM LẠI 1 XÍU */
+let speed = 6.8;
+let gravity = 0.7;
+
+let dino = {
+    x: 40,
+    w: 55,
+    h: 55,
+    y: ground - 55,
+    vy: 0,
+    jump:false
+};
+
+let spikes = [];
+let score = 0;
+let frame = 0;
+let alive = true;
+
+function addSpike(){
+    let count = Math.random() < 0.3 ? 2 : 1;
+    for(let i=0;i<count;i++){
+        spikes.push({
+            x: canvas.width + i*40,
+            w: 30,
+            h: 45
+        });
+    }
 }
 
-function createCactus() {
-    const cactus = document.createElement("div");
-    cactus.classList.add("cactus");
-    game.appendChild(cactus);
-
-    let cactusLeft = game.offsetWidth;
-    cactus.style.left = cactusLeft + "px";
-
-    let move = setInterval(() => {
-        if (cactusLeft < -20) {
-            clearInterval(move);
-            game.removeChild(cactus);
-        }
-
-        /* 👇 CHẠY CHẬM HƠN */
-        cactusLeft -= gameSpeed;
-        cactus.style.left = cactusLeft + "px";
-
-        // Va chạm
-        const dinoRect = dino.getBoundingClientRect();
-        const cactusRect = cactus.getBoundingClientRect();
-
-        if (
-            dinoRect.right > cactusRect.left &&
-            dinoRect.left < cactusRect.right &&
-            dinoRect.bottom > cactusRect.top
-        ) {
-            alert("Game Over!");
-            location.reload();
-        }
-    }, 20);
-
-    /* 👇 GIÃN CÁCH CÂY (đỡ gắt) */
-    setTimeout(createCactus, 2000);
+function jump(){
+    if(!dino.jump && alive){
+        dino.vy = -12;
+        dino.jump = true;
+    }
 }
-
-document.addEventListener("keydown", e => {
-    if (e.code === "Space") jump();
+document.getElementById("jumpBtn").onclick = jump;
+document.addEventListener("keydown",e=>{
+    if(e.code==="Space") jump();
 });
 
-createCactus();
-</script>
+function update(){
+    if(!alive) return;
+    frame++;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    ctx.fillStyle="#444";
+    ctx.fillRect(0,ground,canvas.width,4);
+
+    dino.vy += gravity;
+    dino.y += dino.vy;
+    if(dino.y >= ground - dino.h){
+        dino.y = ground - dino.h;
+        dino.vy = 0;
+        dino.jump = false;
+    }
+    ctx.drawImage(dinoImg,dino.x,dino.y,dino.w,dino.h);
+
+    /* 🔽 GIÃN THỜI GIAN RA GAI */
+    if(frame % 55 === 0) addSpike();
+
+    for(let i=spikes.length-1;i>=0;i--){
+        let s = spikes[i];
+        s.x -= speed;
+        ctx.drawImage(
+            cactusImg,
+            s.x,
+            ground - s.h,
+            s.w,
+            s.h
+        );
+
+        if(
+            dino.x < s.x+s.w &&
+            dino.x+dino.w > s.x &&
+            dino.y+dino.h > ground-s.h
+        ){
+            gameOver();
+        }
+
+        if(s.x+s.w < 0){
+            spikes.splice(i,1);
+            score++;
+            document.getElementById("score").innerText = score;
+        }
+    }
+
+    requestAnimationFrame(update);
+}
+
+function gameOver(){
+    alive=false;
+    document.getElementById("over").style.display="flex";
+}
+
+function restart(){
+    spikes=[];
+    score=0;
+    frame=0;
+    alive=true;
+    dino.y = ground - dino.h;
+    dino.vy = 0;
+    document.getElementById("score").innerText=0;
+    document.getElementById("over").style.display="none";
+    update();
+}
+
+update();
+</script>
 </body>
 </html>
