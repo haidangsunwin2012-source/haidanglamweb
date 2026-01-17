@@ -10,7 +10,7 @@
         margin:0;
         background:linear-gradient(#050a3a,#000);
         color:#fff;
-        font-family:Arial,Helvetica,sans-serif;
+        font-family:Arial;
         text-align:center;
         user-select:none;
     }
@@ -19,8 +19,8 @@
     #gameBox{
         margin:10px auto;
         border:3px solid #00ffff;
-        box-shadow:0 0 15px #00ffff;
         background:#000;
+        box-shadow:0 0 15px #00ffff;
     }
     #jumpBtn{
         margin:15px auto;
@@ -29,25 +29,16 @@
         border:none;
         border-radius:30px;
         background:#00eaff;
-        color:#000;
         font-weight:bold;
-        box-shadow:0 0 10px #00eaff;
     }
     #over{
         position:absolute;
-        top:0;left:0;
-        width:100%;height:100%;
-        background:rgba(0,0,0,0.7);
+        inset:0;
+        background:rgba(0,0,0,.7);
         display:none;
         align-items:center;
         justify-content:center;
         flex-direction:column;
-        z-index:10;
-    }
-    #over h1{color:red;}
-    #over button{
-        padding:10px 20px;
-        font-size:16px;
     }
 </style>
 </head>
@@ -78,42 +69,42 @@ dinoImg.src = "dino.png";
 const cactusImg = new Image();
 cactusImg.src = "cactus.png";
 
-let groundY = 160;
+const ground = 170;
+
+let speed = 8; // 🔽 giảm tốc độ
 let gravity = 0.7;
-let speed = 12; // chạy nhanh x2
 
 let dino = {
     x: 40,
-    y: groundY,
-    w: 40,
-    h: 40,
+    w: 55,   // 🦖 to hơn xương rồng
+    h: 55,
+    y: ground - 55,
     vy: 0,
-    jumping:false
+    jump:false
 };
 
 let spikes = [];
-let frame = 0;
 let score = 0;
+let frame = 0;
 let alive = true;
 
 function addSpike(){
-    let count = Math.random()<0.25 ? 2 : 1; // thỉnh thoảng 2 gai
+    let count = Math.random() < 0.3 ? 2 : 1;
     for(let i=0;i<count;i++){
         spikes.push({
-            x: canvas.width + i*35,
-            w: 28,
+            x: canvas.width + i*40,
+            w: 30,
             h: 45
         });
     }
 }
 
 function jump(){
-    if(!dino.jumping && alive){
+    if(!dino.jump && alive){
         dino.vy = -12;
-        dino.jumping = true;
+        dino.jump = true;
     }
 }
-
 document.getElementById("jumpBtn").onclick = jump;
 document.addEventListener("keydown",e=>{
     if(e.code==="Space") jump();
@@ -121,45 +112,50 @@ document.addEventListener("keydown",e=>{
 
 function update(){
     if(!alive) return;
-
     frame++;
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     // ground
     ctx.fillStyle="#444";
-    ctx.fillRect(0,groundY+dino.h,canvas.width,4);
+    ctx.fillRect(0,ground,canvas.width,4);
 
     // dino
     dino.vy += gravity;
     dino.y += dino.vy;
-    if(dino.y >= groundY){
-        dino.y = groundY;
+    if(dino.y >= ground - dino.h){
+        dino.y = ground - dino.h;
         dino.vy = 0;
-        dino.jumping=false;
+        dino.jump = false;
     }
     ctx.drawImage(dinoImg,dino.x,dino.y,dino.w,dino.h);
 
     // spikes
-    if(frame%50===0) addSpike();
+    if(frame % 45 === 0) addSpike();
 
     for(let i=spikes.length-1;i>=0;i--){
         let s = spikes[i];
         s.x -= speed;
-        ctx.drawImage(cactusImg,s.x,groundY-s.h,s.w,s.h);
+        ctx.drawImage(
+            cactusImg,
+            s.x,
+            ground - s.h,
+            s.w,
+            s.h
+        );
 
         // collision
         if(
             dino.x < s.x+s.w &&
             dino.x+dino.w > s.x &&
-            dino.y+dino.h > groundY-s.h
+            dino.y+dino.h > ground-s.h
         ){
             gameOver();
         }
 
-        if(s.x+s.w<0){
+        if(s.x+s.w < 0){
             spikes.splice(i,1);
             score++;
-            document.getElementById("score").innerText=score;
+            document.getElementById("score").innerText = score;
         }
     }
 
@@ -176,8 +172,8 @@ function restart(){
     score=0;
     frame=0;
     alive=true;
-    dino.y=groundY;
-    dino.vy=0;
+    dino.y = ground - dino.h;
+    dino.vy = 0;
     document.getElementById("score").innerText=0;
     document.getElementById("over").style.display="none";
     update();
