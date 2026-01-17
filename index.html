@@ -9,33 +9,18 @@ body{
     margin:0;
     background:linear-gradient(180deg,#020024,#090979,#000);
     color:white;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:Arial;
     text-align:center;
 }
 
-h1{
-    margin-top:15px;
-    color:#00ffff;
-    text-shadow:0 0 15px #00ffff;
-}
-h2{
-    color:#ff0033;
-    margin:5px 0;
-}
-#author{
-    font-size:13px;
-    opacity:0.8;
-}
-
-#score{
-    margin-top:8px;
-    font-size:18px;
-    color:#00ff99;
-}
+h1{color:#00ffff;text-shadow:0 0 15px #00ffff;margin-top:15px}
+h2{color:red;margin:5px 0}
+#author{font-size:13px;opacity:0.8}
+#score{margin-top:6px;color:#00ff99;font-size:18px}
 
 #game{
-    width:360px;
-    height:220px;
+    width:420px;
+    height:240px;
     border:3px solid #00ffff;
     margin:15px auto;
     position:relative;
@@ -44,43 +29,47 @@ h2{
     box-shadow:0 0 25px #00ffff;
 }
 
-/* khủng long */
 #dino{
     position:absolute;
     bottom:15px;
-    left:40px;
-    width:65px;
+    left:50px;
+    width:70px;
 }
 
-/* gai */
 #spike{
     position:absolute;
     bottom:15px;
-    right:-40px;
+    right:-60px;
     width:0;
     height:0;
-    border-left:20px solid transparent;
-    border-right:20px solid transparent;
-    border-top:35px solid #ff0033;
+    border-left:22px solid transparent;
+    border-right:22px solid transparent;
+    border-top:40px solid red;
     filter:drop-shadow(0 0 8px red);
 }
 
-/* nhảy */
 .jump{
-    animation: jump 0.55s ease;
+    animation: jump 0.8s ease;
 }
 
 @keyframes jump{
-    0%{bottom:15px;}
-    50%{bottom:120px;}
-    100%{bottom:15px;}
+    0%{bottom:15px}
+    50%{bottom:160px}
+    100%{bottom:15px}
 }
 
-#hint{
-    font-size:14px;
-    opacity:0.85;
-    margin-top:5px;
+#startBtn{
+    margin-top:10px;
+    padding:10px 25px;
+    font-size:16px;
+    border:none;
+    border-radius:6px;
+    background:#00ffff;
+    color:black;
+    box-shadow:0 0 15px #00ffff;
 }
+
+#hint{font-size:14px;opacity:0.8;margin-top:5px}
 </style>
 </head>
 
@@ -96,75 +85,55 @@ h2{
     <div id="spike"></div>
 </div>
 
+<button id="startBtn">▶ START</button>
 <div id="hint">👉 Chạm màn hình hoặc nhấn phím để nhảy</div>
 
 <script>
 const dino = document.getElementById("dino");
 const spike = document.getElementById("spike");
 const scoreEl = document.getElementById("score");
+const startBtn = document.getElementById("startBtn");
 
 let score = 0;
-let speed = 4;
-let gameOver = false;
+let speed = 3;
+let playing = false;
 
-/* âm thanh */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function beep(freq, time){
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.frequency.value = freq;
-    osc.type = "square";
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    gain.gain.exponentialRampToValueAtTime(
-        0.0001,
-        audioCtx.currentTime + time
-    );
-}
-
-/* nhảy */
 function jump(){
-    if(gameOver) return;
+    if(!playing) return;
     if(!dino.classList.contains("jump")){
         dino.classList.add("jump");
-        beep(600,0.15);
-        setTimeout(()=>dino.classList.remove("jump"),550);
+        setTimeout(()=>dino.classList.remove("jump"),800);
     }
 }
 
 document.addEventListener("keydown", jump);
 document.addEventListener("touchstart", jump);
 
-/* vòng lặp game */
+startBtn.onclick = ()=>{
+    playing = true;
+    startBtn.style.display="none";
+}
+
 setInterval(()=>{
-    if(gameOver) return;
+    if(!playing) return;
 
     let spikeLeft = spike.offsetLeft;
     spike.style.left = spikeLeft - speed + "px";
 
-    if(spikeLeft < -40){
-        spike.style.left = "360px";
+    if(spikeLeft < -60){
+        spike.style.left = "420px";
         score++;
         scoreEl.innerText = "⭐ Điểm: " + score;
-        beep(900,0.05);
-
-        if(score % 5 === 0){
-            speed++;
-        }
     }
 
-    let dinoBottom = parseInt(
-        window.getComputedStyle(dino).getPropertyValue("bottom")
-    );
+    let dinoBottom = parseInt(getComputedStyle(dino).getPropertyValue("bottom"));
 
-    if(spikeLeft < 95 && spikeLeft > 40 && dinoBottom < 50){
-        gameOver = true;
-        beep(150,0.6);
+    if(spikeLeft < 120 && spikeLeft > 50 && dinoBottom < 60){
+        playing = false;
         setTimeout(()=>{
-            alert("💀 GAME OVER 💀\nĐiểm của bạn: " + score);
+            alert("💀 GAME OVER 💀\nĐiểm: " + score);
             location.reload();
-        },200);
+        },100);
     }
 },25);
 </script>
