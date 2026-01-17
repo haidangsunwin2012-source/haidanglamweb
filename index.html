@@ -36,6 +36,7 @@ canvas{
     background:cyan;
     box-shadow:0 0 20px cyan;
 }
+
 .shake{animation:shake .3s;}
 @keyframes shake{
     0%{transform:translate(0)}
@@ -76,13 +77,19 @@ const dinoImg = new Image();
 dinoImg.src = "https://i.imgur.com/7yUVEZd.png";
 let dino = { x:80, y:groundY-60, w:60, h:60, vy:0 };
 
-/* 🌵 GAI */
-let spike = {
-    x: canvas.width,
-    y: groundY - 6,
-    w: 18,
-    h: 5
-};
+/* 🌵 DANH SÁCH GAI */
+let spikes = [];
+
+function spawnSpike(){
+    let count = Math.random() < 0.35 ? 2 : 1; // 👈 35% ra 2 gai
+    for(let i=0;i<count;i++){
+        spikes.push({
+            x: canvas.width + i*24, // 👈 2 gai sát nhau
+            w:18,
+            h:5
+        });
+    }
+}
 
 let gravity = 1;
 let jumping = false;
@@ -90,7 +97,7 @@ let speed = 10;
 let score = 0;
 let gameOver = false;
 
-/* MỞ ÂM THANH */
+/* ÂM THANH */
 let audioUnlocked=false;
 function unlockAudio(){
     if(audioUnlocked) return;
@@ -117,32 +124,43 @@ function update(){
         jumping=false;
     }
 
-    spike.x-=speed;
-    if(spike.x<-spike.w){
-        spike.x=canvas.width+20; // 🚨🚨 SIÊU GẦN (GẤP ĐÔI)
-        score++;
-        point.innerText=score;
-        if(score%3===0){
-            aduSound.currentTime=0;
-            aduSound.play();
-        }
+    if(spikes.length===0){
+        spawnSpike();
     }
 
-    if(
-        dino.x<spike.x+spike.w &&
-        dino.x+dino.w>spike.x &&
-        dino.y+dino.h>groundY-spike.h
-    ){
-        gameOver=true;
-        dieSound.play();
-        canvas.classList.add("shake");
+    for(let i=spikes.length-1;i>=0;i--){
+        let s = spikes[i];
+        s.x -= speed;
+
+        if(
+            dino.x < s.x + s.w &&
+            dino.x + dino.w > s.x &&
+            dino.y + dino.h > groundY - s.h
+        ){
+            gameOver=true;
+            dieSound.play();
+            canvas.classList.add("shake");
+        }
+
+        if(s.x < -s.w){
+            spikes.splice(i,1);
+            score++;
+            point.innerText = score;
+            if(score % 3 === 0){
+                aduSound.currentTime = 0;
+                aduSound.play();
+            }
+        }
     }
 
     ctx.fillStyle="#222";
     ctx.fillRect(0,groundY,canvas.width,4);
     ctx.drawImage(dinoImg,dino.x,dino.y,dino.w,dino.h);
+
     ctx.fillStyle="red";
-    ctx.fillRect(spike.x,groundY-6,spike.w,spike.h);
+    spikes.forEach(s=>{
+        ctx.fillRect(s.x, groundY-6, s.w, s.h);
+    });
 
     requestAnimationFrame(update);
 }
@@ -158,7 +176,10 @@ function jump(){
 }
 
 jumpBtn.onclick=jump;
-document.addEventListener("keydown",e=>{if(e.code==="Space")jump();});
+document.addEventListener("keydown",e=>{
+    if(e.code==="Space") jump();
+});
+
 dinoImg.onload=update;
 </script>
 
